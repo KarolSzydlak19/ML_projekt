@@ -14,15 +14,14 @@ prog = Progress(
 )
 
 combined_metric = functools.reduce(operator.add, METRICS.values())
-results = []
 prog.start()
 for ds_name in DATASETS:
-    porg_task = prog.add_task(f"Dataset: {ds_name}", total=len(METHODS))
+    prog_task = prog.add_task(f"Dataset: {ds_name}", total=len(METHODS))
     
     base_dataset = DATASETS[ds_name]
     base_dataset_list = list(base_dataset)
     
-    for metohd in METHODS:
+    for method in METHODS:
         #for seed in SEEDS:
         results_dir = os.path.join(RESULTS_DIR, ds_name)
         os.makedirs(results_dir, exist_ok=True)
@@ -33,20 +32,19 @@ for ds_name in DATASETS:
         model_pipeline = (
             (compose.SelectType(str) | preprocessing.OneHotEncoder()) +
             (compose.SelectType(int, float) | preprocessing.StandardScaler())
-        ) | METHODS[metohd].clone()
+        ) | METHODS[method].clone()
         multi_metric = progressive_val_score(
             dataset=iter(base_dataset_list),
             model=model_pipeline,
             metric=combined_metric.clone()
         )
-        results.append({
-                "dataset_name": ds_name,
-                "method_name": metohd,
-                "metrics": multi_metric.get()
-            })
-        
-        prog.advance(porg_task)
-        np.save(os.path.join(results_dir, f"{metohd}.npy"), results)
-    results = []
-prog.advance(porg_task)
+        current_result = [{
+            "dataset_name": ds_name,
+            "method_name": method,
+            "metrics": multi_metric.get()
+        }]
+
+        prog.advance(prog_task)
+        np.save(os.path.join(results_dir, f"{method}.npy"), current_result)
+prog.advance(prog_task)
 prog.stop()

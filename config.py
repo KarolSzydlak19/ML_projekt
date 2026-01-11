@@ -1,5 +1,6 @@
 import numpy as np
 from river import cluster, datasets, metrics, stream
+from estream import EStream
 
 SEED = 42
 
@@ -8,22 +9,28 @@ RESULTS_DIR = "_results"
 REPORTS_DIR = "_reports"
 
 # Clusteam
-N_MACRO_CLUSTERS = 5
+N_MACRO_CLUSTERS = 7
 MAX_MICRO_CLUSTERS = 100
 TIME_WINDOW = 1000
-MICRO_CLUSTER_R_FACTOR = 2.0
+MICRO_CLUSTER_R_FACTOR = 2
 TIME_GAP = 100
 
 # Denstream
 DECAYING_FACTOR = 0.25
 BETA = 0.75
 MU = 2
-EPSILON = 0.02
+EPSILON = 0.8
 N_SAMPLES_INIT = 1000
 STREAM_SPEED = 100
 
+ESTREAM_ALPHA = 20
+ESTREAM_EPSILON = 0.8
+ESTREAM_LAMBDA = 0.001
+ESTREAM_MIN_WEIGHT = 0.001
+ESTREAM_MIN_ACTIVE = 5.0
+
 METHODS = {
-    
+
     "clustream": cluster.CluStream(
         n_macro_clusters=N_MACRO_CLUSTERS,
         max_micro_clusters=MAX_MICRO_CLUSTERS,
@@ -32,7 +39,7 @@ METHODS = {
         time_gap=TIME_GAP,
         seed=SEED
     ),
-    
+
     "denstream": cluster.DenStream(
         decaying_factor=DECAYING_FACTOR,
         epsilon=EPSILON,
@@ -40,6 +47,15 @@ METHODS = {
         mu=MU,
         n_samples_init=N_SAMPLES_INIT,
         stream_speed=STREAM_SPEED
+    ),
+
+    "estream": EStream(
+        n_macro_clusters=N_MACRO_CLUSTERS,
+        epsilon=ESTREAM_EPSILON,
+        fading_factor=ESTREAM_LAMBDA,
+        alpha=ESTREAM_ALPHA,
+        min_weight=ESTREAM_MIN_WEIGHT,
+        min_active=ESTREAM_MIN_ACTIVE
     )
 }
 
