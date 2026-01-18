@@ -71,7 +71,7 @@ DATASETS = {
     #"HTTP": datasets.HTTP(),
     #"CreditCard": datasets.CreditCard(),
     #"ImageSegments": datasets.ImageSegments()
-    #'None': [
+    #'None': lambda: [
         #stream_generator.get_stream('none'),
         #stream_generator.get_stream('none', seed=12),
         #stream_generator.get_stream('none', seed=65321),
@@ -85,21 +85,21 @@ DATASETS = {
         stream_generator.get_stream('sudden', seed=1221231).take(N_SAMPLES),
         stream_generator.get_stream('sudden', seed=102).take(N_SAMPLES)
     ]
-    #'Gradual': [
+    #'Gradual': lambda: [
     #    stream_generator.get_stream('gradual', n_samples=N_SAMPLES),
     #    stream_generator.get_stream('gradual', seed=12, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('gradual', seed=65321, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('gradual', seed=1221231, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('gradual', seed=102, n_samples=N_SAMPLES)
     #],
-    #'Incremental': [
+    #'Incremental': lambda: [
     #    stream_generator.get_stream('incremental', n_samples=N_SAMPLES),
     #    stream_generator.get_stream('incremental', seed=12, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('incremental', seed=65321, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('incremental', seed=1221231, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('incremental', seed=102, n_samples=N_SAMPLES)
     #],
-    #'Recurring': [
+    #'Recurring': lambda: [
     #    stream_generator.get_stream('recurring', n_samples=N_SAMPLES),
     #    stream_generator.get_stream('recurring', seed=12, n_samples=N_SAMPLES),
     #    stream_generator.get_stream('recurring', seed=65321, n_samples=N_SAMPLES),
