@@ -1,25 +1,27 @@
 import numpy as np
-from river import cluster, datasets, metrics, stream
+from river import cluster, datasets, stream, utils, metrics
 from estream import EStream
+from stream_generator import StreamGenerator
 
 SEED = 42
 
 SPLITS_DIR = "_splits"
 RESULTS_DIR = "_results"
 REPORTS_DIR = "_reports"
+PLOT_DIR = "_plots"
 
 # Clusteam
-N_MACRO_CLUSTERS = 7
+N_MACRO_CLUSTERS = 3
 MAX_MICRO_CLUSTERS = 100
-TIME_WINDOW = 1000
-MICRO_CLUSTER_R_FACTOR = 2
-TIME_GAP = 100
+TIME_WINDOW = 200
+MICRO_CLUSTER_R_FACTOR = 1.0
+TIME_GAP = 50
 
 # Denstream
-DECAYING_FACTOR = 0.25
+DECAYING_FACTOR = 0.1
 BETA = 0.75
-MU = 2
-EPSILON = 0.8
+MU = 4
+EPSILON = 0.05
 N_SAMPLES_INIT = 1000
 STREAM_SPEED = 100
 
@@ -28,6 +30,10 @@ ESTREAM_EPSILON = 0.8
 ESTREAM_LAMBDA = 0.001
 ESTREAM_MIN_WEIGHT = 0.001
 ESTREAM_MIN_ACTIVE = 5.0
+
+stream_generator = StreamGenerator()
+N_SAMPLES = 5000
+WARMUP=500
 
 METHODS = {
 
@@ -64,13 +70,46 @@ INSECT_VARIANT = 'gradual_balanced'
 DATASETS = {
     #"HTTP": datasets.HTTP(),
     #"CreditCard": datasets.CreditCard(),
-    "ImageSegments": datasets.ImageSegments()
+    #"ImageSegments": datasets.ImageSegments()
+    #'None': [
+        #stream_generator.get_stream('none'),
+        #stream_generator.get_stream('none', seed=12),
+        #stream_generator.get_stream('none', seed=65321),
+        #stream_generator.get_stream('none', seed=1221231),
+        #stream_generator.get_stream('none', seed=102),
+    #],
+    'Sudden': lambda: [
+        stream_generator.get_stream('sudden').take(N_SAMPLES),
+        stream_generator.get_stream('sudden', seed=12).take(N_SAMPLES),
+        stream_generator.get_stream('sudden', seed=65321).take(N_SAMPLES),
+        stream_generator.get_stream('sudden', seed=1221231).take(N_SAMPLES),
+        stream_generator.get_stream('sudden', seed=102).take(N_SAMPLES)
+    ]
+    #'Gradual': [
+    #    stream_generator.get_stream('gradual', n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('gradual', seed=12, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('gradual', seed=65321, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('gradual', seed=1221231, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('gradual', seed=102, n_samples=N_SAMPLES)
+    #],
+    #'Incremental': [
+    #    stream_generator.get_stream('incremental', n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('incremental', seed=12, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('incremental', seed=65321, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('incremental', seed=1221231, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('incremental', seed=102, n_samples=N_SAMPLES)
+    #],
+    #'Recurring': [
+    #    stream_generator.get_stream('recurring', n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('recurring', seed=12, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('recurring', seed=65321, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('recurring', seed=1221231, n_samples=N_SAMPLES),
+    #    stream_generator.get_stream('recurring', seed=102, n_samples=N_SAMPLES)
+    #]
 }
 
 METRICS = {
-    "AdjustedRand": metrics.AdjustedRand(),
-    "V-Measure": metrics.VBeta(),
-    "MutualInfo": metrics.MutualInfo(),
-    "Homogeneity": metrics.Homogeneity(),
-    "Completeness": metrics.Completeness()
+    "AdjustedRand":metrics.AdjustedRand(),
+    "NormalizedMutualInfo": metrics.NormalizedMutualInfo(),
+    "Homogeneity": metrics.Homogeneity()
 }
