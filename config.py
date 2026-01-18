@@ -44,8 +44,8 @@ METHODS = {
         micro_cluster_r_factor=MICRO_CLUSTER_R_FACTOR,
         time_gap=TIME_GAP,
         seed=SEED
-    ),
-
+    )
+    ,
     "denstream": cluster.DenStream(
         decaying_factor=DECAYING_FACTOR,
         epsilon=EPSILON,
@@ -53,8 +53,8 @@ METHODS = {
         mu=MU,
         n_samples_init=N_SAMPLES_INIT,
         stream_speed=STREAM_SPEED
-    ),
-
+    )
+    ,
     "estream": EStream(
         n_macro_clusters=N_MACRO_CLUSTERS,
         epsilon=ESTREAM_EPSILON,
@@ -68,16 +68,20 @@ METHODS = {
 INSECT_VARIANT = 'gradual_balanced'
 
 DATASETS = {
-    #"HTTP": datasets.HTTP(),
-    #"CreditCard": datasets.CreditCard(),
-    #"ImageSegments": datasets.ImageSegments()
-    #'None': lambda: [
-        #stream_generator.get_stream('none'),
-        #stream_generator.get_stream('none', seed=12),
-        #stream_generator.get_stream('none', seed=65321),
-        #stream_generator.get_stream('none', seed=1221231),
-        #stream_generator.get_stream('none', seed=102),
-    #],
+    "HTTP": lambda: [datasets.HTTP().take(N_SAMPLES) for _ in range(5)]
+    ,
+    "CreditCard": lambda: [datasets.CreditCard().take(N_SAMPLES) for _ in range(5)]
+    ,
+    "ImageSegments": lambda: [datasets.ImageSegments().take(N_SAMPLES) for _ in range(5)]
+    ,
+    'None': lambda: [
+        stream_generator.get_stream('none'),
+        stream_generator.get_stream('none', seed=12),
+        stream_generator.get_stream('none', seed=65321),
+        stream_generator.get_stream('none', seed=1221231),
+        stream_generator.get_stream('none', seed=102),
+    ]
+    ,
     'Sudden': lambda: [
         stream_generator.get_stream('sudden').take(N_SAMPLES),
         stream_generator.get_stream('sudden', seed=12).take(N_SAMPLES),
@@ -85,27 +89,30 @@ DATASETS = {
         stream_generator.get_stream('sudden', seed=1221231).take(N_SAMPLES),
         stream_generator.get_stream('sudden', seed=102).take(N_SAMPLES)
     ]
-    #'Gradual': lambda: [
-    #    stream_generator.get_stream('gradual', n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('gradual', seed=12, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('gradual', seed=65321, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('gradual', seed=1221231, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('gradual', seed=102, n_samples=N_SAMPLES)
-    #],
-    #'Incremental': lambda: [
-    #    stream_generator.get_stream('incremental', n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('incremental', seed=12, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('incremental', seed=65321, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('incremental', seed=1221231, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('incremental', seed=102, n_samples=N_SAMPLES)
-    #],
-    #'Recurring': lambda: [
-    #    stream_generator.get_stream('recurring', n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('recurring', seed=12, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('recurring', seed=65321, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('recurring', seed=1221231, n_samples=N_SAMPLES),
-    #    stream_generator.get_stream('recurring', seed=102, n_samples=N_SAMPLES)
-    #]
+    ,
+    'Gradual': lambda: [
+       stream_generator.get_stream('gradual', n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('gradual', seed=12, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('gradual', seed=65321, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('gradual', seed=1221231, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('gradual', seed=102, n_samples=N_SAMPLES).take(N_SAMPLES)
+    ]
+    ,
+    'Incremental': lambda: [
+       stream_generator.get_stream('incremental', n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('incremental', seed=12, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('incremental', seed=65321, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('incremental', seed=1221231, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('incremental', seed=102, n_samples=N_SAMPLES).take(N_SAMPLES)
+    ]
+    ,
+    'Recurring': lambda: [
+       stream_generator.get_stream('recurring', n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('recurring', seed=12, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('recurring', seed=65321, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('recurring', seed=1221231, n_samples=N_SAMPLES).take(N_SAMPLES),
+       stream_generator.get_stream('recurring', seed=102, n_samples=N_SAMPLES).take(N_SAMPLES)
+    ]
 }
 
 METRICS = {

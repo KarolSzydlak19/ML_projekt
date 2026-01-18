@@ -1,16 +1,12 @@
 import os
-import numpy as np
-import random
-from river.evaluate import iter_progressive_val_score
-from river import metrics, preprocessing, compose
+from river import preprocessing, compose
 from rich.progress import Progress, TimeElapsedColumn
-import functools
-import operator
 import matplotlib.pyplot as plt
 import matplotlib
 from datetime import datetime
-import random
 from config import *
+import pandas as pd
+
 matplotlib.use('Agg')
 prog = Progress(
     *Progress.get_default_columns(),
@@ -33,7 +29,7 @@ for ds_name in DATASETS:
         all_histories = {m_name: [] for m_name in METRICS.keys()}
         for run_id, base_dataset in enumerate(base_dataset_list_all):
             model_pipeline = (
-            compose.SelectType(int, float) 
+            compose.SelectType(int, float)  | preprocessing.StandardScaler()
             ) | METHODS[method].clone()
             current_metric = {
                 name: metric.clone() 
@@ -43,6 +39,8 @@ for ds_name in DATASETS:
             steps = []
             base_dataset_list = list(base_dataset)
             for i, (x,y) in enumerate(base_dataset_list):
+                if i % 1000 == 0:
+                    print(f"Dataset: {ds_name} | Metoda: {method} | Krok: {i}")
                 y_pred = model_pipeline.predict_one(x)
                 model_pipeline.learn_one(x, y)
 
@@ -77,6 +75,30 @@ for ds_name in DATASETS:
         plt.legend()
         plt.savefig(plot_path)
         plt.close(fig)
+
+        # tworzenie tabel do sprawka
+        TABLE_INTERVAL = 500
+
+        df_history = pd.DataFrame(mean_history)
+        df_history['Step'] = steps
+
+        indices_to_keep = list(range(0, len(steps), TABLE_INTERVAL))
+        if (len(steps) - 1) not in indices_to_keep:
+            indices_to_keep.append(len(steps) - 1)
+
+        df_table = df_history.iloc[indices_to_keep].copy()
+
+        cols = ['Step'] + [c for c in df_table.columns if c != 'Step']
+        df_table = df_table[cols]
+
+        df_table = df_table.round(4)
+
+        tables_dir = os.path.join(RESULTS_DIR, "tables", ds_name)
+        os.makedirs(tables_dir, exist_ok=True)
+
+        csv_filename = f"{method}_summary.csv"
+        csv_path = os.path.join(tables_dir, csv_filename)
+        df_table.to_csv(csv_path, index=False, sep=';')
         
         final_scores = {name: m.get() for name, m in current_metric.items()}
                     
