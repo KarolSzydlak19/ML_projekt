@@ -34,6 +34,7 @@ ESTREAM_MIN_ACTIVE = 5.0
 stream_generator = StreamGenerator()
 N_SAMPLES = 5000
 WARMUP=500
+WINDOW_SIZE = 500
 
 METHODS = {
 
@@ -72,12 +73,12 @@ DATASETS = {
     #"CreditCard": datasets.CreditCard(),
     #"ImageSegments": datasets.ImageSegments()
     #'None': lambda: [
-        #stream_generator.get_stream('none'),
-        #stream_generator.get_stream('none', seed=12),
-        #stream_generator.get_stream('none', seed=65321),
-        #stream_generator.get_stream('none', seed=1221231),
-        #stream_generator.get_stream('none', seed=102),
-    #],
+        #stream_generator.get_stream('none').take(N_SAMPLES),
+        #stream_generator.get_stream('none', seed=12).take(N_SAMPLES),
+        #stream_generator.get_stream('none', seed=65321).take(N_SAMPLES),
+        #stream_generator.get_stream('none', seed=1221231).take(N_SAMPLES),
+        #stream_generator.get_stream('none', seed=102).take(N_SAMPLES)
+    #]
     'Sudden': lambda: [
         stream_generator.get_stream('sudden').take(N_SAMPLES),
         stream_generator.get_stream('sudden', seed=12).take(N_SAMPLES),

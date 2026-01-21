@@ -19,15 +19,12 @@ prog.start()
 for ds_name in DATASETS:
     prog_task = prog.add_task(f"Dataset: {ds_name}", total=len(METHODS))
     
-    dataset_results_buffer = {}
-    
-    shared_steps = []
-
     for method in METHODS:
         results_dir = os.path.join(RESULTS_DIR, ds_name)
         os.makedirs(results_dir, exist_ok=True)
 
         base_dataset_list_all = DATASETS[ds_name]()
+        
         all_histories = {m_name: [] for m_name in METRICS.keys()}
 
         for run_id, base_dataset in enumerate(base_dataset_list_all):
@@ -45,12 +42,14 @@ for ds_name in DATASETS:
             steps = []
             
             for i, (x, y) in enumerate(base_dataset):
+                
                 y_pred = model_pipeline.predict_one(x)
                 model_pipeline.learn_one(x, y)
 
                 if y_pred is not None:
                     for m_name, metric in current_metric.items():
                         metric.update(y, y_pred)
+                        
                         if i > WARMUP:
                             score = metric.get()
                             history[m_name].append(score if score is not None else np.nan)
@@ -70,9 +69,26 @@ for ds_name in DATASETS:
             for m_name in METRICS.keys()
         }
         
-        dataset_results_buffer[method] = mean_history
-        shared_steps = steps
+        # --- Rysowanie Wykresu ---
+        time_now = datetime.now().strftime("%d%m%Y%H%M%S")
+        plot_dir_full = os.path.join(PLOT_DIR, ds_name, method)
+        os.makedirs(plot_dir_full, exist_ok=True)
+        plot_path = os.path.join(plot_dir_full, f"{time_now}.png")
         
+        fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+        for m_name, m_values in mean_history.items():
+            ax.plot(steps, m_values, label=m_name)
+
+        ax.set_xlabel("Step")
+        ax.set_ylabel(f"Score (Rolling Window: {WINDOW_SIZE})")
+        ax.set_title(f"{ds_name} – {method}")
+        plt.grid(True, alpha=0.3)
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(plot_path)
+        plt.close(fig)
+        
+        # Zapis wyników
         final_scores = {name: m.get() for name, m in current_metric.items()}     
         current_result = [{
             "dataset_name": ds_name,
@@ -83,32 +99,9 @@ for ds_name in DATASETS:
             "all_histories": all_histories, 
             "final_metrics": final_scores
         }]
-        np.save(os.path.join(results_dir, f"{method}.npy"), current_result)
-        
+
         prog.advance(prog_task)
+        np.save(os.path.join(results_dir, f"{method}.npy"), current_result)
 
-    
-    time_now = datetime.now().strftime("%d%m%Y%H%M%S")
-    
-    for metric_name in METRICS.keys():
-        plot_dir_metric = os.path.join(PLOT_DIR, ds_name, metric_name)
-        os.makedirs(plot_dir_metric, exist_ok=True)
-        
-        fig, ax = plt.subplots(1, 1, figsize=(10, 6))
-        
-        for method_name, method_history in dataset_results_buffer.items():
-            if metric_name in method_history:
-                ax.plot(shared_steps, method_history[metric_name], label=method_name)
-        
-        ax.set_xlabel("Step")
-        ax.set_ylabel(f"{metric_name} (Window: {WINDOW_SIZE})")
-        ax.set_title(f"Dataset: {ds_name} – Metric: {metric_name}")
-        plt.grid(True, alpha=0.3)
-        plt.legend()
-        plt.tight_layout()
-        
-        plot_path = os.path.join(plot_dir_metric, f"comparison_{time_now}.png")
-        plt.savefig(plot_path)
-        plt.close(fig)
-
+prog.advance(prog_task)
 prog.stop()
