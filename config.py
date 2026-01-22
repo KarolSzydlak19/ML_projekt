@@ -69,9 +69,9 @@ METHODS = {
 INSECT_VARIANT = 'gradual_balanced'
 
 DATASETS = {
-    #"HTTP": datasets.HTTP(),
-    #"CreditCard": datasets.CreditCard(),
-    #"ImageSegments": datasets.ImageSegments()
+    "HTTP": lambda: [datasets.HTTP().take(N_SAMPLES) for _ in range(5)],
+    "CreditCard": lambda: [datasets.CreditCard().take(N_SAMPLES) for _ in range(5)],
+    "ImageSegments": lambda: [datasets.ImageSegments().take(N_SAMPLES) for _ in range(5)],
     #'None': lambda: [
         #stream_generator.get_stream('none').take(N_SAMPLES),
         #stream_generator.get_stream('none', seed=12).take(N_SAMPLES),

@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from river import utils, compose
+from river import utils, compose, preprocessing
 from rich.progress import Progress, TimeElapsedColumn
 import matplotlib.pyplot as plt
 import matplotlib
@@ -24,6 +24,7 @@ for ds_name in DATASETS:
     shared_steps = []
 
     for method in METHODS:
+        print(method.upper())
         results_dir = os.path.join(RESULTS_DIR, ds_name)
         os.makedirs(results_dir, exist_ok=True)
 
@@ -31,10 +32,15 @@ for ds_name in DATASETS:
         all_histories = {m_name: [] for m_name in METRICS.keys()}
 
         for run_id, base_dataset in enumerate(base_dataset_list_all):
-            
-            model_pipeline = (
-                compose.SelectType(int, float) 
-            ) | METHODS[method].clone()
+            print(f"{run_id}/{len(base_dataset_list_all)}")
+
+            # tu może można zrobić shuffle na base_dataset_list_all żeby okna miały trochę trudnych punktów (?????)
+
+            steps = [compose.SelectType(int, float)]
+            if ds_name in ["HTTP", "CreditCard", "ImageSegments"]:
+                steps.append(preprocessing.StandardScaler())
+            steps.append(METHODS[method].clone())
+            model_pipeline = compose.Pipeline(*steps)
             
             current_metric = {
                 name: utils.Rolling(metric.clone(), window_size=WINDOW_SIZE) 
